@@ -155,10 +155,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Common\BinaryFileReader.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Image\Bitmap\Bitmap.h" />
+    <ClInclude Include="Image\Jpeg\BitStreamReader.h" />
+    <ClInclude Include="Image\Jpeg\Parser\JpegParser.h" />
+    <ClInclude Include="Image\Jpeg\Syntax\Marker.h" />
+    <ClInclude Include="Image\Jpeg\Syntax\Segment.h" />
+    <ClInclude Include="Image\Pixel\PixelFormat.h" />
+    <ClInclude Include="Image\Math\Math.h" />
+    <ClInclude Include="Image\Pixel\PixelFormatConverters.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Image\Jpeg\BitStreamReader.cpp" />
+    <ClCompile Include="Image\Jpeg\Parser\JpegParser.cpp" />
     <ClCompile Include="Media.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
