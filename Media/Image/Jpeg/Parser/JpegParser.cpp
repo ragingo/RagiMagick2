@@ -26,6 +26,11 @@ namespace RagiMagick2::Image::Jpeg
 
     bool JpegParser::parse() noexcept
     {
+        if (!m_FileReader.open()) {
+            std::println("Failed to open file");
+            return false;
+        }
+
         Marker marker{};
         m_FileReader.ReadUInt16(marker);
         m_Markers.push_back(marker);

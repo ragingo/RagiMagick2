@@ -5,6 +5,8 @@
 #include <type_traits>
 #include <vector>
 #include "CommandLine/Options.h"
+#include "Image/Bitmap/Bitmap.h"
+#include "Image/Jpeg/Decoder/JpegDecoder.h"
 
 class ImageConverter final
 {
@@ -38,9 +40,13 @@ public:
 
     bool execute() noexcept
     {
-        std::println("Input file: {}", m_InputFile);
-        std::println("Output file: {}", m_OutputFile);
-        std::println("Output format: {}", m_OutputFormat);
+        using namespace RagiMagick2::Image::Bitmap;
+        using namespace RagiMagick2::Image::Jpeg;
+
+        auto decoder = JpegDecoder(m_InputFile);
+        DecodeResult result{};
+        decoder.decode(result);
+        writeBitmap(m_OutputFile, result.width, result.height, 32, result.pixels);
         return true;
     }
 

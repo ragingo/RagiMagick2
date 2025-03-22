@@ -122,7 +122,10 @@
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMPSupport>
+      </OpenMPSupport>
+      <AdditionalOptions>-openmp:experimental %(AdditionalOptions)</AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -144,7 +147,10 @@
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMPSupport>
+      </OpenMPSupport>
+      <AdditionalOptions>-openmp:experimental %(AdditionalOptions)</AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -159,6 +165,11 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="Image\Bitmap\Bitmap.h" />
     <ClInclude Include="Image\Jpeg\BitStreamReader.h" />
+    <ClInclude Include="Image\Jpeg\Decoder\Common.h" />
+    <ClInclude Include="Image\Jpeg\Decoder\ComponentInfo.h" />
+    <ClInclude Include="Image\Jpeg\Decoder\JpegDecoder.h" />
+    <ClInclude Include="Image\Jpeg\Decoder\Utility.h" />
+    <ClInclude Include="Image\Jpeg\Decoder\YCbCrComponents.h" />
     <ClInclude Include="Image\Jpeg\Parser\JpegParser.h" />
     <ClInclude Include="Image\Jpeg\Syntax\Marker.h" />
     <ClInclude Include="Image\Jpeg\Syntax\Segment.h" />
@@ -169,6 +180,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Image\Jpeg\BitStreamReader.cpp" />
+    <ClCompile Include="Image\Jpeg\Decoder\JpegDecoder.cpp" />
+    <ClCompile Include="Image\Jpeg\Decoder\YCbCrComponents.cpp" />
     <ClCompile Include="Image\Jpeg\Parser\JpegParser.cpp" />
     <ClCompile Include="Media.cpp" />
     <ClCompile Include="pch.cpp">

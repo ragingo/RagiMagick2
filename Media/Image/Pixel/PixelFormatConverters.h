@@ -110,7 +110,7 @@ namespace RagiMagick2::Image::Pixel
                 int16_t cb = srcCb[cbOffset];
                 int16_t cr = srcCr[crOffset];
 
-                const auto& [r, g, b] = image::ycbcrToRGB(y, cb, cr);
+                const auto& [r, g, b] = ycbcrToRGB(y, cb, cr);
                 pixels[index++] = { b, g, r, 0xFF }; // 結局ここが遅い
             }
         }
