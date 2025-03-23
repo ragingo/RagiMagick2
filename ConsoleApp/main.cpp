@@ -1,4 +1,5 @@
-﻿#include <cstdlib>
+﻿#include <algorithm>
+#include <cstdlib>
 #include <print>
 #include <string_view>
 #include <vector>
@@ -44,7 +45,7 @@ bool validateCPU()
         std::println("CPU feature: {}", NAMEOF_ENUM(feature));
     }
 
-    if (features.end() == std::find(features.begin(), features.end(), CPUFeature::AVX2)) {
+    if (!std::ranges::contains(features, CPUFeature::AVX2)) {
         std::println("AVX2 is required.");
         return false;
     }
