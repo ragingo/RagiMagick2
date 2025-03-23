@@ -2,7 +2,10 @@
 #include <print>
 #include <string_view>
 #include <vector>
+#include <nameof.hpp>
 #include "CommandLine/CommandLine.h"
+
+bool validateCPU();
 
 int main(int argc, char** argv)
 {
@@ -10,6 +13,10 @@ int main(int argc, char** argv)
 
     if (args.empty()) {
         std::println("Usage: ConsoleApp <command> <subcommand> [options]");
+        return EXIT_FAILURE;
+    }
+
+    if (!validateCPU()) {
         return EXIT_FAILURE;
     }
 
@@ -22,4 +29,25 @@ int main(int argc, char** argv)
     }
 
     return EXIT_SUCCESS;
+}
+
+#include "Common/CPU.h"
+
+bool validateCPU()
+{
+    using namespace RagiMagick2::Common;
+
+    std::println("CPU vendor ID: {}", cpuVendorID());
+
+    auto features = cpuAavailableFeatures();
+    for (auto feature : features) {
+        std::println("CPU feature: {}", NAMEOF_ENUM(feature));
+    }
+
+    if (features.end() == std::find(features.begin(), features.end(), CPUFeature::AVX2)) {
+        std::println("AVX2 is required.");
+        return false;
+    }
+
+    return true;
 }
