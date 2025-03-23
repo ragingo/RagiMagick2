@@ -1,12 +1,16 @@
 ﻿#pragma once
-
+#include <algorithm>
+#include <memory>
 #include <print>
+#include <ranges>
 #include <string_view>
 #include <type_traits>
 #include <vector>
 #include "CommandLine/Options.h"
 #include "Image/Bitmap/Bitmap.h"
 #include "Image/Jpeg/Decoder/JpegDecoder.h"
+#include "Image/Filter/IImageFilter.h"
+#include "Image/Filter/BinaryFilter.h"
 
 class ImageConverter final
 {
@@ -30,6 +34,9 @@ public:
             case ImageConverterOption::OutputFormat:
                 m_OutputFormat = (i + 1 < m_Options.size()) ? m_Options[++i] : "";
                 break;
+            case ImageConverterOption::Filter:
+                m_Filters = toFilters((i + 1 < m_Options.size()) ? m_Options[++i] : "");
+                break;
             default:
                 break;
             }
@@ -42,11 +49,19 @@ public:
     {
         using namespace RagiMagick2::Image::Bitmap;
         using namespace RagiMagick2::Image::Jpeg;
+        using namespace RagiMagick2::Image::Filter;
 
         auto decoder = JpegDecoder(m_InputFile);
         DecodeResult result{};
         decoder.decode(result);
-        writeBitmap(m_OutputFile, result.width, result.height, 32, result.pixels);
+
+        ImageInfo imageInfo = { result.width, result.height, 4, result.pixels };
+        
+        for (auto& filter : m_Filters) {
+            imageInfo = filter->apply(imageInfo);
+        }
+
+        writeBitmap(m_OutputFile, imageInfo.width, imageInfo.height, imageInfo.componentCount * 8, imageInfo.pixels);
         return true;
     }
 
@@ -63,7 +78,36 @@ private:
         if (option == "--output-format" || option == "-of") {
             return OutputFormat;
         }
+        if (option == "--filter") {
+            return Filter;
+        }
         return Unknown;
+    }
+
+    RagiMagick2::Image::Filter::FilterType toFilterType(std::string_view filter) const noexcept
+    {
+        using namespace RagiMagick2::Image::Filter;
+        if (filter == "binary") {
+            return FilterType::Binary;
+        }
+        return FilterType::Unknown;
+    }
+
+    std::vector<std::shared_ptr<RagiMagick2::Image::Filter::IImageFilter>> toFilters(std::string_view option) const noexcept
+    {
+        using namespace RagiMagick2::Image::Filter;
+        std::vector<std::shared_ptr<IImageFilter>> filters;
+
+        for (const auto& filter : std::views::split(option, ',')) {
+            switch (toFilterType(std::string_view{ filter.begin(), filter.end() })) {
+            case FilterType::Binary:
+                filters.emplace_back(std::make_shared<BinaryFilter>());
+                break;
+            default:
+                break;
+            }
+        }
+        return filters;
     }
 
 private:
@@ -71,4 +115,5 @@ private:
     std::string_view m_InputFile;
     std::string_view m_OutputFile;
     std::string_view m_OutputFormat;
+    std::vector<std::shared_ptr<RagiMagick2::Image::Filter::IImageFilter>> m_Filters;
 };

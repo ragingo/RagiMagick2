@@ -126,8 +126,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
@@ -153,8 +155,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
@@ -175,9 +179,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Image\Filter\BinaryFilter.h" />
     <ClInclude Include="Common\BinaryFileReader.h" />
     <ClInclude Include="Common\CPU.h" />
-    <ClInclude Include="framework.h" />
     <ClInclude Include="Image\Bitmap\Bitmap.h" />
     <ClInclude Include="Image\Jpeg\BitStreamReader.h" />
     <ClInclude Include="Image\Jpeg\Decoder\Common.h" />
@@ -191,20 +195,15 @@
     <ClInclude Include="Image\Pixel\PixelFormat.h" />
     <ClInclude Include="Image\Math\Math.h" />
     <ClInclude Include="Image\Pixel\PixelFormatConverters.h" />
-    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Image\Filter\BinaryFilter.cpp" />
+    <ClCompile Include="Image\Filter\IImageFilter.h" />
     <ClCompile Include="Image\Jpeg\BitStreamReader.cpp" />
     <ClCompile Include="Image\Jpeg\Decoder\JpegDecoder.cpp" />
     <ClCompile Include="Image\Jpeg\Decoder\YCbCrComponents.cpp" />
     <ClCompile Include="Image\Jpeg\Parser\JpegParser.cpp" />
     <ClCompile Include="Media.cpp" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

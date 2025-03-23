@@ -1,6 +1,4 @@
-﻿#include "pch.h"
-#include "JpegParser.h"
-
+﻿#include "JpegParser.h"
 #include <cstdint>
 #include <memory>
 #include <print>

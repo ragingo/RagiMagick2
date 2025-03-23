@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "JpegDecoder.h"
+﻿#include "JpegDecoder.h"
 #include <immintrin.h>
 #include <array>
 #include <cassert>

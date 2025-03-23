@@ -1,6 +1,4 @@
-﻿#include "pch.h"
-#include "BitStreamReader.h"
-
+﻿#include "BitStreamReader.h"
 #include <cstdint>
 
 namespace RagiMagick2::Image::Jpeg

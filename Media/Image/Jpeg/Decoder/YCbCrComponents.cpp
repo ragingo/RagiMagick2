@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "pch.h"
 #include "YCbCrComponents.h"
 #include <cassert>
 #include <vector>

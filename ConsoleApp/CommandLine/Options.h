@@ -12,6 +12,7 @@ enum class ImageConverterOption
     InputFile,
     OutputFile,
     OutputFormat,
+    Filter,
     Help,
     Unknown
 };
