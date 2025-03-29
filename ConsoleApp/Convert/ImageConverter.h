@@ -11,6 +11,7 @@
 #include "Image/Jpeg/Decoder/JpegDecoder.h"
 #include "Image/Filter/IImageFilter.h"
 #include "Image/Filter/BinaryFilter.h"
+#include "Image/Filter/GrayscaleFilter.h"
 #include "Image/Filter/MosaicFilter.h"
 
 class ImageConverter final
@@ -91,6 +92,9 @@ private:
         if (filter == "binary") {
             return FilterType::Binary;
         }
+        if (filter == "grayscale") {
+            return FilterType::Grayscale;
+        }
         if (filter == "mosaic") {
             return FilterType::Mosaic;
         }
@@ -106,6 +110,9 @@ private:
             switch (toFilterType(std::string_view{ filter.begin(), filter.end() })) {
             case FilterType::Binary:
                 filters.emplace_back(std::make_shared<BinaryFilter>());
+                break;
+            case FilterType::Grayscale:
+                filters.emplace_back(std::make_shared<GrayscaleFilter>());
                 break;
             case FilterType::Mosaic:
                 filters.emplace_back(std::make_shared<MosaicFilter>());

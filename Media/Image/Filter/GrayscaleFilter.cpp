@@ -1,17 +1,12 @@
-﻿#include "BinaryFilter.h"
+﻿#include "GrayscaleFilter.h"
 #include <cassert>
 #include <cstdint>
 #include <vector>
 #include "IImageFilter.h"
 
-namespace
-{
-    constexpr uint8_t THRESHOLD = 128;
-}
-
 namespace RagiMagick2::Image::Filter
 {
-    ImageInfo BinaryFilter::apply(const ImageInfo& src) noexcept
+    ImageInfo GrayscaleFilter::apply(const ImageInfo& src) noexcept
     {
         assert(src.componentCount >= 3);
 
@@ -26,10 +21,9 @@ namespace RagiMagick2::Image::Filter
             uint8_t g = src.pixels[i + 1];
             uint8_t b = src.pixels[i + 2];
             uint8_t gray = (r + g + b) / 3;
-            uint8_t binary = gray > THRESHOLD ? 255 : 0;
-            dst.pixels[i + 0] = binary;
-            dst.pixels[i + 1] = binary;
-            dst.pixels[i + 2] = binary;
+            dst.pixels[i + 0] = gray;
+            dst.pixels[i + 1] = gray;
+            dst.pixels[i + 2] = gray;
         }
 
         return dst;

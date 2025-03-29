@@ -1,5 +1,6 @@
 ﻿#include "MosaicFilter.h"
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <vector>
 #include "IImageFilter.h"
@@ -14,6 +15,8 @@ namespace RagiMagick2::Image::Filter
 {
     ImageInfo MosaicFilter::apply(const ImageInfo& src) noexcept
     {
+        assert(src.componentCount >= 3);
+
         ImageInfo dst{};
         dst.width = src.width;
         dst.height = src.height;
