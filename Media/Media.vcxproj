@@ -183,6 +183,7 @@
     <ClInclude Include="Common\BinaryFileReader.h" />
     <ClInclude Include="Common\CPU.h" />
     <ClInclude Include="Image\Bitmap\Bitmap.h" />
+    <ClInclude Include="Image\Filter\MosaicFilter.h" />
     <ClInclude Include="Image\Jpeg\BitStreamReader.h" />
     <ClInclude Include="Image\Jpeg\Decoder\Common.h" />
     <ClInclude Include="Image\Jpeg\Decoder\ComponentInfo.h" />
@@ -199,6 +200,7 @@
   <ItemGroup>
     <ClCompile Include="Image\Filter\BinaryFilter.cpp" />
     <ClCompile Include="Image\Filter\IImageFilter.h" />
+    <ClCompile Include="Image\Filter\MosaicFilter.cpp" />
     <ClCompile Include="Image\Jpeg\BitStreamReader.cpp" />
     <ClCompile Include="Image\Jpeg\Decoder\JpegDecoder.cpp" />
     <ClCompile Include="Image\Jpeg\Decoder\YCbCrComponents.cpp" />

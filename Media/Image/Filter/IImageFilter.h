@@ -22,6 +22,7 @@ namespace RagiMagick2::Image::Filter
     enum class FilterType
     {
         Binary,
+        Mosaic,
         Unknown
     };
 } // namespace RagiMagick2::Image::Filter
