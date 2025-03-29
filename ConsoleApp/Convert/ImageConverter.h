@@ -12,6 +12,7 @@
 #include "Image/Filter/IImageFilter.h"
 #include "Image/Filter/BinaryFilter.h"
 #include "Image/Filter/GrayscaleFilter.h"
+#include "Image/Filter/LaplacianFilter.h"
 #include "Image/Filter/MosaicFilter.h"
 
 class ImageConverter final
@@ -95,6 +96,9 @@ private:
         if (filter == "grayscale") {
             return FilterType::Grayscale;
         }
+        if (filter == "laplacian") {
+            return FilterType::Laplacian;
+        }
         if (filter == "mosaic") {
             return FilterType::Mosaic;
         }
@@ -113,6 +117,9 @@ private:
                 break;
             case FilterType::Grayscale:
                 filters.emplace_back(std::make_shared<GrayscaleFilter>());
+                break;
+            case FilterType::Laplacian:
+                filters.emplace_back(std::make_shared<LaplacianFilter>());
                 break;
             case FilterType::Mosaic:
                 filters.emplace_back(std::make_shared<MosaicFilter>());

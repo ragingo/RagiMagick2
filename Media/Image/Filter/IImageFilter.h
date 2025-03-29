@@ -23,6 +23,7 @@ namespace RagiMagick2::Image::Filter
     {
         Binary,
         Grayscale,
+        Laplacian,
         Mosaic,
         Unknown
     };
