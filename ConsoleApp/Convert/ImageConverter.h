@@ -89,51 +89,27 @@ private:
         return Unknown;
     }
 
-    RagiMagick2::Image::Filter::FilterType toFilterType(std::string_view filter) const noexcept
-    {
-        using namespace RagiMagick2::Image::Filter;
-        if (filter == "binary") {
-            return FilterType::Binary;
-        }
-        if (filter == "gaussian") {
-            return FilterType::Gaussian;
-        }
-        if (filter == "grayscale") {
-            return FilterType::Grayscale;
-        }
-        if (filter == "laplacian") {
-            return FilterType::Laplacian;
-        }
-        if (filter == "mosaic") {
-            return FilterType::Mosaic;
-        }
-        return FilterType::Unknown;
-    }
-
     std::vector<std::shared_ptr<RagiMagick2::Image::Filter::IImageFilter>> toFilters(std::string_view option) const noexcept
     {
         using namespace RagiMagick2::Image::Filter;
         std::vector<std::shared_ptr<IImageFilter>> filters;
 
-        for (const auto& filter : std::views::split(option, ',')) {
-            switch (toFilterType(std::string_view{ filter.begin(), filter.end() })) {
-            case FilterType::Binary:
+        for (const auto& value : std::views::split(option, ',')) {
+            const auto filter = std::string_view{ value.begin(), value.end() };
+            if (filter == "binary") {
                 filters.emplace_back(std::make_shared<BinaryFilter>());
-                break;
-            case FilterType::Gaussian:
+            }
+            else if (filter == "gaussian") {
                 filters.emplace_back(std::make_shared<GaussianFilter>());
-                break;
-            case FilterType::Grayscale:
+            }
+            else if (filter == "grayscale") {
                 filters.emplace_back(std::make_shared<GrayscaleFilter>());
-                break;
-            case FilterType::Laplacian:
+            }
+            else if (filter == "laplacian") {
                 filters.emplace_back(std::make_shared<LaplacianFilter>());
-                break;
-            case FilterType::Mosaic:
+            }
+            else if (filter == "mosaic") {
                 filters.emplace_back(std::make_shared<MosaicFilter>());
-                break;
-            default:
-                break;
             }
         }
         return filters;
