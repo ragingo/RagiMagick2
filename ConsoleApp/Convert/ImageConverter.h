@@ -11,6 +11,7 @@
 #include "Image/Jpeg/Decoder/JpegDecoder.h"
 #include "Image/Filter/IImageFilter.h"
 #include "Image/Filter/BinaryFilter.h"
+#include "Image/Filter/GaussianFilter.h"
 #include "Image/Filter/GrayscaleFilter.h"
 #include "Image/Filter/LaplacianFilter.h"
 #include "Image/Filter/MosaicFilter.h"
@@ -93,6 +94,9 @@ private:
         if (filter == "binary") {
             return FilterType::Binary;
         }
+        if (filter == "gaussian") {
+            return FilterType::Gaussian;
+        }
         if (filter == "grayscale") {
             return FilterType::Grayscale;
         }
@@ -114,6 +118,9 @@ private:
             switch (toFilterType(std::string_view{ filter.begin(), filter.end() })) {
             case FilterType::Binary:
                 filters.emplace_back(std::make_shared<BinaryFilter>());
+                break;
+            case FilterType::Gaussian:
+                filters.emplace_back(std::make_shared<GaussianFilter>());
                 break;
             case FilterType::Grayscale:
                 filters.emplace_back(std::make_shared<GrayscaleFilter>());

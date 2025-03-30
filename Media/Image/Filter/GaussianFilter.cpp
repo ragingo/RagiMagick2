@@ -1,4 +1,4 @@
-﻿#include "LaplacianFilter.h"
+﻿#include "GaussianFilter.h"
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -8,22 +8,33 @@
 
 namespace
 {
+    constexpr std::array<float, 3 * 3> SMALL_KERNEL = {
+        1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f,
+        2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f,
+        1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f
+    };
+
+    constexpr std::array<float, 5 * 5> LARGE_KERNEL = {
+        1.0f / 256.0f,  4.0f / 256.0f,  6.0f / 256.0f,  4.0f / 256.0f, 1.0f / 256.0f,
+        4.0f / 256.0f, 16.0f / 256.0f, 24.0f / 256.0f, 16.0f / 256.0f, 4.0f / 256.0f,
+        6.0f / 256.0f, 24.0f / 256.0f, 36.0f / 256.0f, 24.0f / 256.0f, 6.0f / 256.0f,
+        4.0f / 256.0f, 16.0f / 256.0f, 24.0f / 256.0f, 16.0f / 256.0f, 4.0f / 256.0f,
+        1.0f / 256.0f,  4.0f / 256.0f,  6.0f / 256.0f,  4.0f / 256.0f, 1.0f / 256.0f,
+    };
+
     template <size_t KERNEL_SIZE, size_t N = KERNEL_SIZE * KERNEL_SIZE>
-    constexpr std::array<int, N> createKernel()
+    constexpr std::array<float, N> createKernel()
     {
         static_assert(KERNEL_SIZE == 3 || KERNEL_SIZE == 5);
-
-        std::array<int, N> kernel{};
-        for (int i = 0; i < N; ++i) {
-            kernel[i] = -1;
-        }
         if constexpr (KERNEL_SIZE == 3) {
-            kernel[N / 2] = 8;
+            return SMALL_KERNEL;
         }
         else if constexpr (KERNEL_SIZE == 5) {
-            kernel[N / 2] = 24;
+            return LARGE_KERNEL;
         }
-        return kernel;
+        else {
+            return {};
+        }
     }
 
     constexpr int KERNEL_SIZE = 5; // 3 or 5
@@ -33,7 +44,7 @@ namespace
 
 namespace RagiMagick2::Image::Filter
 {
-    ImageInfo LaplacianFilter::apply(const ImageInfo& src) noexcept
+    ImageInfo GaussianFilter::apply(const ImageInfo& src) noexcept
     {
         assert(src.componentCount >= 3);
 
@@ -45,9 +56,9 @@ namespace RagiMagick2::Image::Filter
 
         for (int row = 0; row < src.height; ++row) {
             for (int col = 0; col < src.width; ++col) {
-                int r = 0;
-                int g = 0;
-                int b = 0;
+                float r = 0;
+                float g = 0;
+                float b = 0;
 
                 for (int k = 0; k < KERNEL_SIZE * KERNEL_SIZE; ++k) {
                     const int sx = col + k % KERNEL_SIZE - KERNEL_CENTER;
@@ -62,9 +73,10 @@ namespace RagiMagick2::Image::Filter
                 }
 
                 const size_t index = static_cast<size_t>(row * src.width + col) * src.componentCount;
-                dst.pixels[index + 0] = static_cast<uint8_t>(std::clamp(r, 0, 255));
-                dst.pixels[index + 1] = static_cast<uint8_t>(std::clamp(g, 0, 255));
-                dst.pixels[index + 2] = static_cast<uint8_t>(std::clamp(b, 0, 255));
+                dst.pixels[index + 0] = static_cast<uint8_t>(std::clamp(r, 0.0f, 255.0f));
+                dst.pixels[index + 1] = static_cast<uint8_t>(std::clamp(g, 0.0f, 255.0f));
+                dst.pixels[index + 2] = static_cast<uint8_t>(std::clamp(b, 0.0f, 255.0f));
+                dst.pixels[index + 3] = src.pixels[index + 3];
             }
         }
 
