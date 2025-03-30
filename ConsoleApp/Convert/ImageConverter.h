@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <algorithm>
 #include <memory>
 #include <print>
 #include <ranges>
@@ -8,13 +7,13 @@
 #include <vector>
 #include "CommandLine/Options.h"
 #include "Image/Bitmap/Bitmap.h"
-#include "Image/Jpeg/Decoder/JpegDecoder.h"
 #include "Image/Filter/IImageFilter.h"
 #include "Image/Filter/BinaryFilter.h"
 #include "Image/Filter/GaussianFilter.h"
 #include "Image/Filter/GrayscaleFilter.h"
 #include "Image/Filter/LaplacianFilter.h"
 #include "Image/Filter/MosaicFilter.h"
+#include "Image/Jpeg/Decoder/JpegDecoder.h"
 
 class ImageConverter final
 {
@@ -55,11 +54,13 @@ public:
         using namespace RagiMagick2::Image::Jpeg;
         using namespace RagiMagick2::Image::Filter;
 
-        auto decoder = JpegDecoder(m_InputFile);
-        DecodeResult result{};
-        decoder.decode(result);
-
-        ImageInfo imageInfo = { result.width, result.height, 4, result.pixels };
+        ImageInfo imageInfo{};
+        if (m_InputFile.ends_with(".jpg") || m_InputFile.ends_with(".jpeg")) {
+            imageInfo = decodeJpeg(m_InputFile);
+        }
+        else {
+            return false;
+        }
         
         for (auto& filter : m_Filters) {
             imageInfo = filter->apply(imageInfo);
@@ -136,6 +137,15 @@ private:
             }
         }
         return filters;
+    }
+
+    RagiMagick2::Image::Filter::ImageInfo decodeJpeg(std::string_view fileName) const noexcept
+    {
+        using namespace RagiMagick2::Image::Jpeg;
+        auto decoder = JpegDecoder(fileName);
+        DecodeResult result{};
+        decoder.decode(result);
+        return { result.width, result.height, 4, result.pixels };
     }
 
 private:

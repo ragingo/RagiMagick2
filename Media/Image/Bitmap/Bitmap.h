@@ -1,9 +1,10 @@
 ﻿#pragma once
 #include <cassert>
 #include <cstdint>
+#include <fstream>
+#include <iosfwd>
 #include <string_view>
 #include <vector>
-#include <fstream>
 
 namespace RagiMagick2::Image::Bitmap
 {
@@ -56,7 +57,7 @@ namespace RagiMagick2::Image::Bitmap
         infoHeader.biWidth = width;
         infoHeader.biHeight = -height;
         infoHeader.biPlanes = 1;
-        infoHeader.biBitCount = bitCount;
+        infoHeader.biBitCount = static_cast<uint16_t>(bitCount);
         infoHeader.biSizeImage = static_cast<uint32_t>(pixels.size());
 
         std::ofstream file(filename.data(), std::ios::binary);
