@@ -5,6 +5,7 @@
 #include <string_view>
 #include <type_traits>
 #include "CommandLine/ConvertCommand.h"
+#include "CommandLine/ShowCommand.h"
 #include "CommandLine/Options.h"
 
 class CommandLine final
@@ -40,6 +41,17 @@ public:
             }
             return true;
         }
+        case Command::Show:
+        {
+            auto command = ShowCommand(m_Options);
+            if (!command.parse()) {
+                return false;
+            }
+            if (!command.execute()) {
+                return false;
+            }
+            return true;
+        }
         case Command::Help:
             return true;
         default:
@@ -52,6 +64,9 @@ private:
     {
         if (command == "convert") {
             return Command::Convert;
+        }
+        if (command == "show") {
+            return Command::Show;
         }
         if (command == "help") {
             return Command::Help;
