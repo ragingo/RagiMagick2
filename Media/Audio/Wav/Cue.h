@@ -17,6 +17,12 @@ namespace RagiMagick2::Audio::Wav
         std::string wavFileName;
     };
 
+    struct CueTrackIndex
+    {
+        uint32_t index;
+        std::string time;
+    };
+
     struct CueTrack
     {
         uint32_t id;
@@ -24,11 +30,5 @@ namespace RagiMagick2::Audio::Wav
         std::string performer;
         std::string composer;
         std::vector<CueTrackIndex> indices;
-    };
-
-    struct CueTrackIndex
-    {
-        uint32_t index;
-        std::string time;
     };
 }
