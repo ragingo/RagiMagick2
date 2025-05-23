@@ -180,6 +180,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Audio\Wav\Cue.h" />
+    <ClInclude Include="Audio\Wav\CueParser.h" />
     <ClInclude Include="Audio\Wav\WavParser.h" />
     <ClInclude Include="Image\Filter\BinaryFilter.h" />
     <ClInclude Include="Common\BinaryFileReader.h" />
