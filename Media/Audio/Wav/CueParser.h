@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <vector>
 #include "Cue.h"
 
@@ -35,11 +36,33 @@ namespace RagiMagick2::Audio::Wav
             while (std::getline(m_Reader, line)) {
                 auto&& values = parseLine(line);
 
-                std::cout << "======= debug: " << line << std::endl;
-                for (auto&& value : values) {
-                    std::cout << value << std::endl;
+                if (values.size() < 2) {
+                    continue;
+                }
+
+                auto&& value0 = values[0];
+                auto&& value1 = values[1];
+
+                if (value0 == "REM") {
+                    if (value1 == "GENRE" && values.size() == 3) {
+                        cue.genre = values[2];
+                    }
+                    else if (value1 == "DATE" && values.size() == 3) {
+                        cue.date = values[2];
+                    }
+                    else if (value1 == "DISCID" && values.size() == 3) {
+                        cue.discID = values[2];
+                    }
+                    else if (value1 == "COMMENT" && values.size() == 3) {
+                        cue.comment = values[2];
+                    }
                 }
             }
+
+            std::cout << cue.genre << std::endl;
+            std::cout << cue.date << std::endl;
+            std::cout << cue.discID << std::endl;
+            std::cout << cue.comment << std::endl;
         }
 
     private:
