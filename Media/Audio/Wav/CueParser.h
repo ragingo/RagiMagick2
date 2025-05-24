@@ -40,32 +40,38 @@ namespace RagiMagick2::Audio::Wav
                     continue;
                 }
 
-                auto&& value0 = values[0];
-                auto&& value1 = values[1];
-
-                if (value0 == "REM") {
-                    if (value1 == "GENRE" && values.size() == 3) {
-                        cue.genre = values[2];
-                    }
-                    else if (value1 == "DATE" && values.size() == 3) {
-                        cue.date = values[2];
-                    }
-                    else if (value1 == "DISCID" && values.size() == 3) {
-                        cue.discID = values[2];
-                    }
-                    else if (value1 == "COMMENT" && values.size() == 3) {
-                        cue.comment = values[2];
-                    }
+                if (values[0] == "REM") {
+                    cue.remarks.emplace_back(parseRemark(values));
                 }
             }
 
-            std::cout << cue.genre << std::endl;
-            std::cout << cue.date << std::endl;
-            std::cout << cue.discID << std::endl;
-            std::cout << cue.comment << std::endl;
         }
 
     private:
+        CueRemark parseRemark(std::vector<std::string> values) noexcept
+        {
+            assert(values.size() == 3);
+            assert(values[0] == "REM");
+            const auto& type = values[1];
+            const auto& value = values[2];
+            if (type == "GENRE") {
+                return { .type = CueRemarkType::GENRE, .value = value };
+            }
+            else if (type == "DATE") {
+                return { .type = CueRemarkType::DATE, .value = value };
+            }
+            else if (type == "DISCID") {
+                return { .type = CueRemarkType::DISCID, .value = value };
+            }
+            else if (type == "COMMENT") {
+                return { .type = CueRemarkType::COMMENT, .value = value };
+            }
+            else if (type == "COMPOSER") {
+                return { .type = CueRemarkType::COMPOSER, .value = value };
+            }
+            return { .type = CueRemarkType::UNKNOWN, .value = value };
+        }
+
         std::vector<std::string> parseLine(std::string_view line) noexcept
         {
             const std::string_view::const_pointer head = line.data();
