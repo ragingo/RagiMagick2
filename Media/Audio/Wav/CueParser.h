@@ -111,10 +111,10 @@ namespace RagiMagick2::Audio::Wav
                 case '\"':
                     isQuotedValue = !isQuotedValue;
                     if (isQuotedValue) {
-                        startPtr = ptr;
+                        startPtr = ptr + 1;
                     }
                     else {
-                        endPtr = ptr;
+                        endPtr = ptr - 1;
                     }
                     break;
                 case ' ':
