@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include <cstdint>
+#include <ranges>
 #include <string>
-#include <variant>
+#include <tuple>
 #include <vector>
 
 namespace RagiMagick2::Audio::Wav
@@ -36,7 +37,9 @@ namespace RagiMagick2::Audio::Wav
     struct CueTrackIndex
     {
         uint32_t index;
-        std::string time;
+        int32_t minutes;
+        int32_t seconds;
+        int32_t frames;
     };
 
     struct CueTrack
@@ -57,5 +60,26 @@ namespace RagiMagick2::Audio::Wav
         std::vector<CueTrack> tracks{};
         std::vector<CueRemark> remarks{};
     };
+
+    inline std::tuple<int32_t, int32_t, int32_t> getTrackIndexTime(std::string value) noexcept
+    {
+        int32_t minutes = 0;
+        int32_t seconds = 0;
+        int32_t frames = 0;
+        const auto& fields = value
+            | std::ranges::views::split(':')
+            | std::ranges::views::transform([](const auto& field) {
+                return std::stoi(std::string(field.begin(), field.end()));
+              })
+            | std::ranges::to<std::vector>();
+
+        if (fields.size() == 3) {
+            minutes = fields[0];
+            seconds = fields[1];
+            frames = fields[2];
+        }
+
+        return std::make_tuple(minutes, seconds, frames);
+    }
 
 }

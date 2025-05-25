@@ -25,7 +25,7 @@ namespace RagiMagick2::Audio::Wav
         {
             assert(m_Reader);
 
-            std::array<uint8_t, 3> bom;
+            std::array<uint8_t, 3> bom{};
             m_Reader.read(reinterpret_cast<char*>(bom.data()), bom.size());
             if (bom != std::array<uint8_t, 3>{ 0xef, 0xbb, 0xbf }) {
                 m_Reader.seekg(0, std::ios_base::beg);
@@ -136,9 +136,12 @@ namespace RagiMagick2::Audio::Wav
             assert(values[0] == "INDEX");
             const auto& index = values[1];
             const auto& time = values[2];
+            const auto& [minutes, seconds, frames] = getTrackIndexTime(time);
             CueTrackIndex trackIndex{};
             trackIndex.index = std::stoi(index);
-            trackIndex.time = time;
+            trackIndex.minutes = minutes;
+            trackIndex.seconds = seconds;
+            trackIndex.frames = frames;
             return trackIndex;
         }
 
