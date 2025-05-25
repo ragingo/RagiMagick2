@@ -33,7 +33,6 @@ namespace RagiMagick2::Audio::Wav
 
             Cue cue{};
             std::string line;
-            auto lastCommand = CueCommand::UNKNOWN;
             bool isHeaderParsed = false;
 
             while (std::getline(m_Reader, line)) {
