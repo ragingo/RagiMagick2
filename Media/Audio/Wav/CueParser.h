@@ -21,7 +21,7 @@ namespace RagiMagick2::Audio::Wav
             m_Reader = std::ifstream(fileName.data(), std::ios_base::binary);
         }
 
-        void parse() noexcept
+        Cue parse() noexcept
         {
             assert(m_Reader);
 
@@ -91,6 +91,7 @@ namespace RagiMagick2::Audio::Wav
                 }
             }
 
+            return cue;
         }
 
     private:

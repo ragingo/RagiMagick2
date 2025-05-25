@@ -2,6 +2,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include "Cue.h"
 
 namespace RagiMagick2::Audio::Wav
 {
@@ -15,11 +16,12 @@ namespace RagiMagick2::Audio::Wav
         void parse() noexcept;
 
     private:
-        void parseCue() noexcept;
-        void parseWav() noexcept;
+        void parseSingleTrackWav() noexcept;
+        void parseMultiTrackWav() noexcept;
 
         std::string m_WavFileName;
         std::string m_CueFileName;
+        std::optional<Cue> m_Cue;
     };
 
 } // namespace RagiMagick2::Audio::Wav
