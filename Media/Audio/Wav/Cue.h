@@ -9,11 +9,12 @@ namespace RagiMagick2::Audio::Wav
     enum class CueCommand
     {
         REM,
-        PERFORMAR,
+        PERFORMER,
         TITLE,
         FILE,
         TRACK,
-        INDEX
+        INDEX,
+        UNKNOWN
     };
 
     enum class CueRemarkType
@@ -32,15 +33,6 @@ namespace RagiMagick2::Audio::Wav
         std::string value;
     };
 
-    struct Cue
-    {
-        std::string performer;
-        std::string title;
-        std::string composer;
-        std::string wavFileName;
-        std::vector<CueRemark> remarks{};
-    };
-
     struct CueTrackIndex
     {
         uint32_t index;
@@ -50,10 +42,20 @@ namespace RagiMagick2::Audio::Wav
     struct CueTrack
     {
         uint32_t id;
+        std::string type;
         std::string title;
         std::string performer;
-        std::string composer;
         std::vector<CueTrackIndex> indices{};
+        std::vector<CueRemark> remarks{};
+    };
+
+    struct Cue
+    {
+        std::string performer;
+        std::string title;
+        std::string wavFileName;
+        std::vector<CueTrack> tracks{};
+        std::vector<CueRemark> remarks{};
     };
 
 }

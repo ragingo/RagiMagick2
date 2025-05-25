@@ -33,6 +33,9 @@ namespace RagiMagick2::Audio::Wav
 
             Cue cue{};
             std::string line;
+            auto lastCommand = CueCommand::UNKNOWN;
+            bool isHeaderParsed = false;
+
             while (std::getline(m_Reader, line)) {
                 auto&& values = parseLine(line);
 
@@ -40,14 +43,105 @@ namespace RagiMagick2::Audio::Wav
                     continue;
                 }
 
-                if (values[0] == "REM") {
-                    cue.remarks.emplace_back(parseRemark(values));
+                const auto& command = parseCommand(values[0]);
+
+               switch (command) {
+               case CueCommand::REM:
+                   if (isHeaderParsed) {
+                       assert(cue.tracks.size() > 0);
+                       auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
+                       lastTrack.remarks.emplace_back(parseRemark(values));
+                   }
+                   else {
+                       cue.remarks.emplace_back(parseRemark(values));
+                   }
+                   break;
+               case CueCommand::TITLE:
+                   if (isHeaderParsed) {
+                       auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
+                       lastTrack.title = values[1];
+                   }
+                   else {
+                       cue.title = values[1];
+                   }
+                   break;
+               case CueCommand::PERFORMER:
+                   if (isHeaderParsed) {
+                       auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
+                       lastTrack.performer = values[1];
+                   }
+                   else {
+                       cue.performer = values[1];
+                   }
+                   break;
+               case CueCommand::FILE:
+                   isHeaderParsed = true;
+                   cue.wavFileName = values[1];
+                   break;
+               case CueCommand::TRACK:
+                   cue.tracks.emplace_back(parseTrack(values));
+                   break;
+               case CueCommand::INDEX:
+                   {
+                       auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
+                       lastTrack.indices.emplace_back(parseTrackIndex(values));
+                   }
+                   break;
+               default:
+                   break;
                 }
             }
 
         }
 
     private:
+        CueCommand parseCommand(std::string_view value) noexcept
+        {
+            if (value == "REM") {
+                return CueCommand::REM;
+            }
+            else if (value == "PERFORMER") {
+                return CueCommand::PERFORMER;
+            }
+            else if (value == "TITLE") {
+                return CueCommand::TITLE;
+            }
+            else if (value == "FILE") {
+                return CueCommand::FILE;
+            }
+            else if (value == "TRACK") {
+                return CueCommand::TRACK;
+            }
+            else if (value == "INDEX") {
+                return CueCommand::INDEX;
+            }
+            return CueCommand::UNKNOWN;
+        }
+
+        CueTrack parseTrack(std::vector<std::string> values) noexcept
+        {
+            assert(values.size() == 3);
+            assert(values[0] == "TRACK");
+            const auto& id = values[1];
+            const auto& type = values[2];
+            CueTrack track{};
+            track.id = std::stoi(id);
+            track.type = type;
+            return track;
+        }
+
+        CueTrackIndex parseTrackIndex(std::vector<std::string> values) noexcept
+        {
+            assert(values.size() == 3);
+            assert(values[0] == "INDEX");
+            const auto& index = values[1];
+            const auto& time = values[2];
+            CueTrackIndex trackIndex{};
+            trackIndex.index = std::stoi(index);
+            trackIndex.time = time;
+            return trackIndex;
+        }
+
         CueRemark parseRemark(std::vector<std::string> values) noexcept
         {
             assert(values.size() == 3);
