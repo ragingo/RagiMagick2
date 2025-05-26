@@ -45,16 +45,24 @@ namespace RagiMagick2::Audio::Wav
         assert(m_Cue);
         const auto& cue = m_Cue.value();
 
-        auto reader = Common::BinaryFileReader(m_WavFileName);
+        auto reader = Common::BinaryFileReader(m_WavFileName, false);
         if (!reader.open()) {
             return;
         }
 
-        {
-            WavFileHeader header{};
-            reader.ReadBytes(header.fourcc);
-            //std::array<decltype(header.length), 1> lengthBuf{};
-            //reader.ReadUInt32(header.length); // ReadUInt32 を作る
-        }
+        WavFileHeader header{};
+        reader.ReadBytes(header.fourcc);
+        reader.ReadUInt32(header.length);
+        reader.ReadBytes(header.format);
+
+        FormatChunk formatChunk{};
+        reader.ReadBytes(formatChunk.fourcc);
+        reader.ReadUInt32(formatChunk.length);
+        reader.ReadUInt16(formatChunk.format);
+        reader.ReadUInt16(formatChunk.channels);
+        reader.ReadUInt32(formatChunk.samplingFreq);
+        reader.ReadUInt32(formatChunk.bytesPerSec);
+        reader.ReadUInt16(formatChunk.blockSize);
+        reader.ReadUInt16(formatChunk.bitsPerSample);
     }
 }
