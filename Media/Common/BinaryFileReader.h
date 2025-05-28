@@ -127,6 +127,11 @@ namespace RagiMagick2::Common
             return m_Stream.tellg();
         }
 
+        bool isEOF()
+        {
+            return GetCurrentPosition() >= GetSize();
+        }
+
     private:
         std::string m_Filename;
         std::ifstream m_Stream;

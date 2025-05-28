@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <array>
+#include <cstddef>
 #include <cstdint>
+#include <vector>
 
 namespace RagiMagick2::Audio::Wav
 {
@@ -11,16 +13,24 @@ namespace RagiMagick2::Audio::Wav
         WAVE_FORMAT_EXTENSIBLE = 0xfffe
     };
 
-    struct WavFileHeader
+    enum class ChunkID : uint32_t
     {
-        std::array<uint8_t, 4> fourcc{};
+        UNKNOWN = 0,
+        RIFF = 0x46464952, // 'RIFF' -> 'FFIR'
+        FMT  = 0x20746d66, // 'fmt ' -> 't mf'
+        DATA = 0x61746164  // 'data' -> 'atad'
+    };
+
+    struct RiffChunk
+    {
+        ChunkID chunkID = ChunkID::RIFF;
         uint32_t length;
         std::array<uint8_t, 4> format{};
     };
 
     struct FormatChunk
     {
-        std::array<uint8_t, 4> fourcc{};
+        ChunkID chunkID = ChunkID::FMT;
         uint32_t length;
         WavFormat format;
         uint16_t channels;
@@ -28,5 +38,13 @@ namespace RagiMagick2::Audio::Wav
         uint32_t bytesPerSec;
         uint16_t blockSize;
         uint16_t bitsPerSample;
+    };
+
+    struct DataChunk
+    {
+        ChunkID chunkID = ChunkID::DATA;
+        uint32_t length;
+        std::vector<std::byte> data{};
+        std::byte pad;
     };
 }
