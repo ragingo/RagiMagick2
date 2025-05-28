@@ -2,7 +2,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <vector>
+#include <ios>
 
 namespace RagiMagick2::Audio::Wav
 {
@@ -17,7 +17,7 @@ namespace RagiMagick2::Audio::Wav
     {
         UNKNOWN = 0,
         RIFF = 0x46464952, // 'RIFF' -> 'FFIR'
-        FMT  = 0x20746d66, // 'fmt ' -> 't mf'
+        FMT  = 0x20746d66, // 'fmt ' -> ' tmf'
         DATA = 0x61746164  // 'data' -> 'atad'
     };
 
@@ -44,7 +44,7 @@ namespace RagiMagick2::Audio::Wav
     {
         ChunkID chunkID = ChunkID::DATA;
         uint32_t length;
-        std::vector<std::byte> data{};
+        std::streamoff offset;
         std::byte pad;
     };
 }

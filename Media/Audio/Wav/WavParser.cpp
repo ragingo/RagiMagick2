@@ -32,26 +32,17 @@ namespace RagiMagick2::Audio::Wav
             return;
         }
 
-        if (m_CueFileName.empty()) {
-            parseSingleTrackWav();
-        }
-        else {
+        parseRiffContainer();
+
+        if (!m_CueFileName.empty()) {
             CueParser parser(m_CueFileName);
             m_Cue = parser.parse();
             parseMultiTrackWav();
         }
-
     }
 
-    void WavParser::parseSingleTrackWav() noexcept
+    void WavParser::parseRiffContainer() noexcept
     {
-    }
-
-    void WavParser::parseMultiTrackWav() noexcept
-    {
-        assert(m_Cue);
-        const auto& cue = m_Cue.value();
-
         while (!m_Reader.isEOF()) {
             ChunkID chunkID;
             m_Reader.ReadUInt32(chunkID);
@@ -68,6 +59,12 @@ namespace RagiMagick2::Audio::Wav
                 break;
             }
         }
+    }
+
+    void WavParser::parseMultiTrackWav() noexcept
+    {
+        assert(m_Cue);
+        //const auto& cue = m_Cue.value();
     }
 
     void WavParser::parseRiffChunk() noexcept
@@ -95,8 +92,8 @@ namespace RagiMagick2::Audio::Wav
     {
         DataChunk data{};
         m_Reader.ReadUInt32(data.length);
-        data.data.resize(data.length); // 巨大だから全部メモリの乗せるのはやめよう
-        m_Reader.ReadBytes(data.data);
+        data.offset = m_Reader.GetCurrentPosition();
+        m_Reader.Seek(data.length, Common::BinaryFileReader::SeekOrigin::Current);
         m_Reader.ReadUInt8(data.pad);
     }
 }

@@ -18,7 +18,7 @@ namespace RagiMagick2::Audio::Wav
         void parse() noexcept;
 
     private:
-        void parseSingleTrackWav() noexcept;
+        void parseRiffContainer() noexcept;
         void parseMultiTrackWav() noexcept;
         void parseRiffChunk() noexcept;
         void parseFormatChunk() noexcept;
