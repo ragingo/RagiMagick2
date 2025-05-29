@@ -1,10 +1,10 @@
 ﻿#include "WavParser.h"
-#include <array>
 #include <cassert>
-#include <cstdint>
+#include <cstdio>
 #include <filesystem>
-#include <fstream>
+#include <print>
 #include <string>
+#include <utility>
 #include "Common/BinaryFileReader.h"
 #include "Cue.h"
 #include "CueParser.h"
@@ -32,7 +32,9 @@ namespace RagiMagick2::Audio::Wav
             return;
         }
 
-        parseRiffContainer();
+        if (!parseRiffContainer()) {
+            return;
+        }
 
         if (!m_CueFileName.empty()) {
             CueParser parser(m_CueFileName);
@@ -41,7 +43,7 @@ namespace RagiMagick2::Audio::Wav
         }
     }
 
-    void WavParser::parseRiffContainer() noexcept
+    bool WavParser::parseRiffContainer() noexcept
     {
         while (!m_Reader.isEOF()) {
             ChunkID chunkID;
@@ -59,6 +61,28 @@ namespace RagiMagick2::Audio::Wav
                 break;
             }
         }
+
+        if (!m_RiffChunk || !m_FormatChunk || !m_DataChunk) {
+            std::println(stderr, "必須チャンク RIFF, fmt, data のいずれかが存在しない");
+            return false;
+        }
+
+        auto& riff = *m_RiffChunk;
+        auto& fmt = *m_FormatChunk;
+        auto& data = *m_DataChunk;
+        const bool isWave = riff.fileID == FileID::WAVE;
+
+        if (!(isWave && (fmt.bitsPerSample == 8 || fmt.bitsPerSample == 16))) {
+            std::println(stderr, "WAVE なのに 1 サンプルあたりのビット数が 8 または 16 ではない");
+            return false;
+        }
+
+        if (fmt.channel != Channel::MONO && fmt.channel != Channel::STEREO) {
+            std::println(stderr, "チャンネル数が 1 または 2 ではない");
+            return false;
+        }
+
+        return true;
     }
 
     void WavParser::parseMultiTrackWav() noexcept
@@ -71,7 +95,10 @@ namespace RagiMagick2::Audio::Wav
     {
         RiffChunk riff{};
         m_Reader.ReadUInt32(riff.length);
-        m_Reader.ReadBytes(riff.format);
+        m_Reader.ReadUInt32(riff.fileID);
+        if (riff.fileID != FileID::WAVE) {
+            std::println("invalid FileID: 0x{0:X}", std::to_underlying(riff.fileID));
+        }
         m_RiffChunk.emplace(riff);
     }
 
@@ -80,7 +107,7 @@ namespace RagiMagick2::Audio::Wav
         FormatChunk fmt{};
         m_Reader.ReadUInt32(fmt.length);
         m_Reader.ReadUInt16(fmt.format);
-        m_Reader.ReadUInt16(fmt.channels);
+        m_Reader.ReadUInt16(fmt.channel);
         m_Reader.ReadUInt32(fmt.samplingFreq);
         m_Reader.ReadUInt32(fmt.bytesPerSec);
         m_Reader.ReadUInt16(fmt.blockSize);
@@ -95,5 +122,6 @@ namespace RagiMagick2::Audio::Wav
         data.offset = m_Reader.GetCurrentPosition();
         m_Reader.Seek(data.length, Common::BinaryFileReader::SeekOrigin::Current);
         m_Reader.ReadUInt8(data.pad);
+        m_DataChunk.emplace(data);
     }
 }

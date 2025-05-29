@@ -6,7 +6,13 @@
 
 namespace RagiMagick2::Audio::Wav
 {
-    enum class WavFormat : uint16_t
+    enum class FileID : uint32_t
+    {
+        UNKNOWN = 0,
+        WAVE = 0x45564157, // 'WAVE' -> 'EVAW'
+    };
+
+    enum class WaveFormat : uint16_t
     {
         WAVE_FORMAT_UNKNOWN = 0x0000,
         WAVE_FORMAT_PCM = 0x0001,
@@ -21,19 +27,25 @@ namespace RagiMagick2::Audio::Wav
         DATA = 0x61746164  // 'data' -> 'atad'
     };
 
+    enum class Channel: uint16_t
+    {
+        MONO = 1,
+        STEREO = 2
+    };
+
     struct RiffChunk
     {
         ChunkID chunkID = ChunkID::RIFF;
         uint32_t length;
-        std::array<uint8_t, 4> format{};
+        FileID fileID;
     };
 
     struct FormatChunk
     {
         ChunkID chunkID = ChunkID::FMT;
         uint32_t length;
-        WavFormat format;
-        uint16_t channels;
+        WaveFormat format;
+        Channel channel;
         uint32_t samplingFreq;
         uint32_t bytesPerSec;
         uint16_t blockSize;
