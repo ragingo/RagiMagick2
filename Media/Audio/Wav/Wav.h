@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <ios>
+#include <type_traits>
 
 namespace RagiMagick2::Audio::Wav
 {
@@ -31,6 +31,21 @@ namespace RagiMagick2::Audio::Wav
     {
         MONO = 1,
         STEREO = 2
+    };
+
+    template<typename T>
+        requires std::is_same_v<T, uint8_t> || std::is_same_v<T, int16_t>
+    struct MonoData
+    {
+        T value;
+    };
+
+    template<typename T>
+        requires std::is_same_v<T, uint8_t> || std::is_same_v<T, int16_t>
+    struct StereoData
+    {
+        T left;
+        T right;
     };
 
     struct RiffChunk

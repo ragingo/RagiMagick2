@@ -1,10 +1,13 @@
 ﻿#include "WavParser.h"
+#include <array>
 #include <cassert>
 #include <cstdio>
+#include <cstdint>
 #include <filesystem>
 #include <print>
 #include <string>
 #include <utility>
+#include <vector>
 #include "Common/BinaryFileReader.h"
 #include "Cue.h"
 #include "CueParser.h"
@@ -103,7 +106,14 @@ namespace RagiMagick2::Audio::Wav
     void WavParser::parseMultiTrackWav() noexcept
     {
         assert(m_Cue);
-        //const auto& cue = m_Cue.value();
+        assert(m_DataChunk);
+        //const auto& cue = *m_Cue;
+        const auto& data = *m_DataChunk;
+
+        m_Reader.Seek(data.offset, Common::BinaryFileReader::SeekOrigin::Begin);
+
+        //while (!m_Reader.isEOF()) {
+        //}
     }
 
     void WavParser::parseRiffChunk() noexcept
