@@ -71,14 +71,29 @@ namespace RagiMagick2::Audio::Wav
         auto& fmt = *m_FormatChunk;
         auto& data = *m_DataChunk;
         const bool isWave = riff.fileID == FileID::WAVE;
+        const auto blockSize = (fmt.bitsPerSample / 8) * std::to_underlying(fmt.channels);
+
+        if (!isWave) {
+            std::println("invalid FileID: 0x{0:X}", std::to_underlying(riff.fileID));
+        }
 
         if (!(isWave && (fmt.bitsPerSample == 8 || fmt.bitsPerSample == 16))) {
             std::println(stderr, "WAVE なのに 1 サンプルあたりのビット数が 8 または 16 ではない");
             return false;
         }
 
-        if (fmt.channel != Channel::MONO && fmt.channel != Channel::STEREO) {
+        if (fmt.channels != Channel::MONO && fmt.channels != Channel::STEREO) {
             std::println(stderr, "チャンネル数が 1 または 2 ではない");
+            return false;
+        }
+
+        if (fmt.blockSize != blockSize) {
+            std::println(stderr, "ブロック(1サンプル)のサイズがおかしい");
+            return false;
+        }
+
+        if (fmt.bytesPerSec != fmt.samplingFreq * blockSize) {
+            std::println(stderr, "1秒あたりのサイズがおかしい");
             return false;
         }
 
@@ -96,9 +111,6 @@ namespace RagiMagick2::Audio::Wav
         RiffChunk riff{};
         m_Reader.ReadUInt32(riff.length);
         m_Reader.ReadUInt32(riff.fileID);
-        if (riff.fileID != FileID::WAVE) {
-            std::println("invalid FileID: 0x{0:X}", std::to_underlying(riff.fileID));
-        }
         m_RiffChunk.emplace(riff);
     }
 
@@ -107,7 +119,7 @@ namespace RagiMagick2::Audio::Wav
         FormatChunk fmt{};
         m_Reader.ReadUInt32(fmt.length);
         m_Reader.ReadUInt16(fmt.format);
-        m_Reader.ReadUInt16(fmt.channel);
+        m_Reader.ReadUInt16(fmt.channels);
         m_Reader.ReadUInt32(fmt.samplingFreq);
         m_Reader.ReadUInt32(fmt.bytesPerSec);
         m_Reader.ReadUInt16(fmt.blockSize);

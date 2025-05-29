@@ -45,7 +45,7 @@ namespace RagiMagick2::Audio::Wav
         ChunkID chunkID = ChunkID::FMT;
         uint32_t length;
         WaveFormat format;
-        Channel channel;
+        Channel channels;
         uint32_t samplingFreq;
         uint32_t bytesPerSec;
         uint16_t blockSize;
