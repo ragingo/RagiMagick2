@@ -9,8 +9,8 @@
 #include <utility>
 #include <vector>
 #include "Common/BinaryFileReader.h"
-#include "Cue.h"
-#include "CueParser.h"
+#include "Audio/CD/Cue.h"
+#include "Audio/CD/CueParser.h"
 #include "Wav.h"
 
 namespace RagiMagick2::Audio::Wav

@@ -3,7 +3,7 @@
 #include <string>
 #include <string_view>
 #include "Common/BinaryFileReader.h"
-#include "Cue.h"
+#include "Audio/CD/Cue.h"
 #include "Wav.h"
 
 namespace RagiMagick2::Audio::Wav

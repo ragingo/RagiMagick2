@@ -82,4 +82,9 @@ namespace RagiMagick2::Audio::Wav
         return std::make_tuple(minutes, seconds, frames);
     }
 
+    inline bool isPreGap(const CueTrackIndex& index) noexcept
+    {
+        return index.index == 0;
+    }
+
 }
