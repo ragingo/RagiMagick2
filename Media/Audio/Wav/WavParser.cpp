@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 #include "Common/BinaryFileReader.h"
+#include "Audio/CD/CD.h"
 #include "Audio/CD/Cue.h"
 #include "Audio/CD/CueParser.h"
 #include "Wav.h"
@@ -108,7 +109,29 @@ namespace RagiMagick2::Audio::Wav
         assert(m_Cue);
         assert(m_DataChunk);
         //const auto& cue = *m_Cue;
-        const auto& data = *m_DataChunk;
+        auto& fmt = *m_FormatChunk;
+        auto& data = *m_DataChunk;
+
+        if (fmt.bitsPerSample != CD::BITS_PER_SAMPLE) {
+            std::println(stderr, "ビット深度が 16 ではない");
+            return;
+        }
+
+        if (std::to_underlying(fmt.channels) != CD::CHANNELS) {
+            std::println(stderr, "チャンネル数が 2 ではない");
+            return;
+        }
+
+        if (fmt.samplingFreq != CD::SAMPLING_RATE) {
+            std::println(stderr, "サンプリング周波数が 44,100 Hz ではない");
+            return;
+        }
+
+        if (fmt.bytesPerSec != CD::BYTES_PER_SECOND) {
+            std::println(stderr, "1秒あたりのサイズが 176,400 ではない");
+            return;
+        }
+
 
         m_Reader.Seek(data.offset, Common::BinaryFileReader::SeekOrigin::Begin);
 

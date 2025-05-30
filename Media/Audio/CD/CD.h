@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <cstdint>
 
-namespace RagiMagick2::Media::Audio::CD
+namespace RagiMagick2::Audio::CD
 {
 
     // サンプリング周波数
@@ -35,4 +35,4 @@ namespace RagiMagick2::Media::Audio::CD
     }
     static_assert(getBytesFromFrames(75) == BYTES_PER_SECOND);
 
-} // namespace RagiMagick2::Media::Audio::CD
+} // namespace RagiMagick2::Audio::CD
