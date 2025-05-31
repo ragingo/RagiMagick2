@@ -1,4 +1,5 @@
 ﻿#include "WavParser.h"
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <filesystem>
@@ -11,7 +12,7 @@
 #include "Audio/CD/Cue.h"
 #include "Audio/CD/CueParser.h"
 #include "Wav.h"
-#include "WavWriter.h"
+#include "WavSplitter.h"
 
 namespace RagiMagick2::Audio::Wav
 {
@@ -29,7 +30,6 @@ namespace RagiMagick2::Audio::Wav
         if (std::filesystem::exists(cueFilePath)) {
             m_CueFileName = cueFilePath.string();
         }
-
 
         if (!m_Reader.open()) {
             return;
@@ -184,38 +184,10 @@ namespace RagiMagick2::Audio::Wav
         m_Reader.clear();
         m_Reader.Seek(data.offset, Common::BinaryFileReader::SeekOrigin::Begin);
 
-        for (const auto& track : tracks) {
-            if (m_Reader.isEOF()) {
-                break;
-            }
-            if (track.soundOffset >= data.header.length) {
-                std::println(stderr, "トラック {} のオフセットがデータ長を超えている", track.id);
-                continue;
-            }
-            m_Reader.Seek(track.soundOffset, Common::BinaryFileReader::SeekOrigin::Begin);
-            std::string fileName = m_WavFileName + "_track_" + std::to_string(track.id) + ".wav";
+        auto wavFilePath = std::filesystem::path(m_WavFileName);
+        auto dir = wavFilePath.parent_path().string();
 
-            WavWriter writer(fileName);
-            if (!writer.open()) {
-                std::println(stderr, "{} のオープンに失敗した", fileName);
-                continue;
-            }
-            writer.writeRiffChunk(track.soundLength);
-            writer.writeFormatChunk(*m_FormatChunk);
-            writer.writeDataChunkHeader(track.soundLength);
-
-            std::array<uint8_t, 1024> buffer{};
-            m_Reader.Seek((*m_DataChunk).offset + track.soundOffset, Common::BinaryFileReader::SeekOrigin::Begin);
-
-            size_t bytesRead = 0;
-            while (bytesRead < track.soundLength) {
-                size_t toRead = std::min<size_t>(buffer.size(), track.soundLength - bytesRead);
-                m_Reader.ReadBytes(buffer, toRead);
-                writer.writePCM(buffer.data(), toRead);
-                bytesRead += toRead;
-            }
-            writer.close();
-        }
+        WavSplitter().run(dir, tracks, m_Reader, *m_FormatChunk, *m_DataChunk);
     }
 
     void WavParser::parseRiffChunk() noexcept

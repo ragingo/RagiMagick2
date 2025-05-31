@@ -184,6 +184,7 @@
     <ClInclude Include="Audio\CD\CueParser.h" />
     <ClInclude Include="Audio\Wav\Wav.h" />
     <ClInclude Include="Audio\Wav\WavParser.h" />
+    <ClInclude Include="Audio\Wav\WavSplitter.h" />
     <ClInclude Include="Audio\Wav\WavWriter.h" />
     <ClInclude Include="Image\Filter\BinaryFilter.h" />
     <ClInclude Include="Common\BinaryFileReader.h" />

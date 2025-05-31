@@ -100,7 +100,7 @@ namespace RagiMagick2::Common
             }
         }
 
-        std::streamoff GetSize() const noexcept
+        size_t GetSize() const noexcept
         {
             return m_Size;
         }
@@ -139,7 +139,7 @@ namespace RagiMagick2::Common
     private:
         std::string m_Filename;
         std::ifstream m_Stream;
-        std::streamoff m_Size = 0;
+        size_t m_Size = 0;
         bool m_IsByteSwap;
     };
 } // namespace RagiMagick2::Common
