@@ -171,10 +171,33 @@ namespace RagiMagick2::Audio::Wav
             tracks.emplace_back(track);
         }
 
+        // 各トラックの長さを計算
+        for (size_t i = 0; i < tracks.size(); ++i) {
+            // トラック N の長さは = トラック N+1 の開始オフセット - トラック N の開始オフセット
+            if (i < tracks.size() - 1) {
+                tracks[i].soundLength = tracks[i + 1].soundOffset - tracks[i].soundOffset;
+            }
+            else {
+                // 最終トラックの長さ = data チャンクの長さ(= 終端) - 最終トラックの開始オフセット
+                tracks[i].soundLength = m_DataChunk->length - tracks[i].soundOffset;
+            }
+        }
+
+        m_Reader.clear();
         m_Reader.Seek(data.offset, Common::BinaryFileReader::SeekOrigin::Begin);
 
-        //while (!m_Reader.isEOF()) {
-        //}
+        for (const auto& track : tracks) {
+            if (m_Reader.isEOF()) {
+                break;
+            }
+            if (track.soundOffset >= data.length) {
+                std::println(stderr, "トラック {} のオフセットがデータ長を超えている", track.id);
+                continue;
+            }
+            m_Reader.Seek(track.soundOffset, Common::BinaryFileReader::SeekOrigin::Begin);
+            std::string fileName = m_WavFileName + "_track_" + std::to_string(track.id) + ".wav";
+            writeWavFile(fileName, *m_RiffChunk, *m_FormatChunk, *m_DataChunk, track);
+        }
     }
 
     void WavParser::parseRiffChunk() noexcept
@@ -206,5 +229,52 @@ namespace RagiMagick2::Audio::Wav
         m_Reader.Seek(data.length, Common::BinaryFileReader::SeekOrigin::Current);
         m_Reader.ReadUInt8(data.pad);
         m_DataChunk.emplace(data);
+    }
+
+    void WavParser::writeWavFile(
+        const std::string& outputFileName,
+        const RiffChunk& riffChunk,
+        const FormatChunk& formatChunk,
+        const DataChunk& dataChunk,
+        const Track& track
+    ) noexcept
+    {
+        // 出力ファイルを開く
+        // ofstream を使ってバイナリモードで書く
+        std::ofstream file(outputFileName, std::ios_base::binary);
+        if (!file) {
+            std::println(stderr, "ファイル {} のオープンに失敗", outputFileName);
+            return;
+        }
+        // RIFF チャンク
+        file.write("RIFF", 4);
+        uint32_t riffLength = sizeof(riffChunk.fileID) + sizeof(FormatChunk) + sizeof(DataChunk) - sizeof(std::streamoff) + track.soundLength;
+        file.write(reinterpret_cast<const char*>(&riffLength), sizeof(riffLength));
+        file.write(reinterpret_cast<const char*>(&riffChunk.fileID), sizeof(riffChunk.fileID));
+        // fmt チャンク
+        file.write("fmt ", 4);
+        file.write(reinterpret_cast<const char*>(&formatChunk.length), sizeof(formatChunk.length));
+        file.write(reinterpret_cast<const char*>(&formatChunk.format), sizeof(formatChunk.format));
+        file.write(reinterpret_cast<const char*>(&formatChunk.channels), sizeof(formatChunk.channels));
+        file.write(reinterpret_cast<const char*>(&formatChunk.samplingFreq), sizeof(formatChunk.samplingFreq));
+        file.write(reinterpret_cast<const char*>(&formatChunk.bytesPerSec), sizeof(formatChunk.bytesPerSec));
+        file.write(reinterpret_cast<const char*>(&formatChunk.blockSize), sizeof(formatChunk.blockSize));
+        file.write(reinterpret_cast<const char*>(&formatChunk.bitsPerSample), sizeof(formatChunk.bitsPerSample));
+
+        // data チャンク
+        file.write("data", 4);
+        file.write(reinterpret_cast<const char*>(&track.soundLength), sizeof(track.soundLength));
+        // データ書き込み (1024 bytes 単位)
+        std::array<uint8_t, 1024> buffer{};
+        m_Reader.Seek(dataChunk.offset + track.soundOffset, Common::BinaryFileReader::SeekOrigin::Begin);
+
+        size_t bytesRead = 0;
+        while (bytesRead < track.soundLength) {
+            size_t toRead = std::min<size_t>(buffer.size(), track.soundLength - bytesRead);
+            m_Reader.ReadBytes(buffer, toRead);
+            file.write(reinterpret_cast<const char*>(buffer.data()), toRead);
+            bytesRead += toRead;
+        }
+        file.close();
     }
 }

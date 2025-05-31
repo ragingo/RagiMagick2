@@ -50,9 +50,9 @@ namespace RagiMagick2::Common
         }
 
         template <typename T, size_t N>
-        void ReadBytes(std::array<T, N>& buffer) noexcept
+        void ReadBytes(std::array<T, N>& buffer, size_t count = sizeof(T) * N) noexcept
         {
-            m_Stream.read(reinterpret_cast<char*>(buffer.data()), sizeof(T) * N);
+            m_Stream.read(reinterpret_cast<char*>(buffer.data()), count);
         }
 
         template <std::ranges::random_access_range T>
@@ -130,6 +130,11 @@ namespace RagiMagick2::Common
         bool isEOF()
         {
             return GetCurrentPosition() >= GetSize();
+        }
+
+        void clear() noexcept
+        {
+            m_Stream.clear();
         }
 
     private:

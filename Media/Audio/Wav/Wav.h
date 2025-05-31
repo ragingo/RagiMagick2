@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <ios>
+#include <string>
 #include <type_traits>
 
 namespace RagiMagick2::Audio::Wav
@@ -81,5 +82,6 @@ namespace RagiMagick2::Audio::Wav
         std::string title;
         uint32_t preGapOffset;
         uint32_t soundOffset;
+        uint32_t soundLength;
     };
 }
