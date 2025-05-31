@@ -74,4 +74,12 @@ namespace RagiMagick2::Audio::Wav
         std::streamoff offset;
         std::byte pad;
     };
+
+    struct Track
+    {
+        uint32_t id;
+        std::string title;
+        uint32_t preGapOffset;
+        uint32_t soundOffset;
+    };
 }

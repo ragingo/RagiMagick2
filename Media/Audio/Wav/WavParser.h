@@ -26,7 +26,7 @@ namespace RagiMagick2::Audio::Wav
 
         std::string m_WavFileName;
         std::string m_CueFileName;
-        std::optional<Cue> m_Cue;
+        std::optional<CD::Cue> m_Cue;
         std::optional<RiffChunk> m_RiffChunk;
         std::optional<FormatChunk> m_FormatChunk;
         std::optional<DataChunk> m_DataChunk;

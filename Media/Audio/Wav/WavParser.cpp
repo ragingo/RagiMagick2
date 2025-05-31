@@ -41,7 +41,7 @@ namespace RagiMagick2::Audio::Wav
         }
 
         if (!m_CueFileName.empty()) {
-            CueParser parser(m_CueFileName);
+            CD::CueParser parser(m_CueFileName);
             m_Cue = parser.parse();
             parseMultiTrackWav();
         }
@@ -71,9 +71,9 @@ namespace RagiMagick2::Audio::Wav
             return false;
         }
 
-        auto& riff = *m_RiffChunk;
-        auto& fmt = *m_FormatChunk;
-        auto& data = *m_DataChunk;
+        const auto& riff = *m_RiffChunk;
+        const auto& fmt = *m_FormatChunk;
+        const auto& data = *m_DataChunk;
         const bool isWave = riff.fileID == FileID::WAVE;
         const auto blockSize = (fmt.bitsPerSample / 8) * std::to_underlying(fmt.channels);
 
@@ -108,9 +108,9 @@ namespace RagiMagick2::Audio::Wav
     {
         assert(m_Cue);
         assert(m_DataChunk);
-        //const auto& cue = *m_Cue;
-        auto& fmt = *m_FormatChunk;
-        auto& data = *m_DataChunk;
+        const auto& cue = *m_Cue;
+        const auto& fmt = *m_FormatChunk;
+        const auto& data = *m_DataChunk;
 
         if (fmt.bitsPerSample != CD::BITS_PER_SAMPLE) {
             std::println(stderr, "ビット深度が 16 ではない");
@@ -132,6 +132,44 @@ namespace RagiMagick2::Audio::Wav
             return;
         }
 
+        std::vector<Track> tracks;
+        tracks.reserve(cue.tracks.size());
+
+        for (const auto& cueTrack : cue.tracks) {
+            if (cueTrack.indices.empty()) {
+                std::println(stderr, "トラック {} にインデックスが存在しない", cueTrack.id);
+                continue;
+            }
+
+            Track track{};
+            track.id = cueTrack.id;
+            track.title = cueTrack.title;
+
+            auto preGaps = cueTrack.indices | std::views::filter([](const auto& index) {
+                return isPreGap(index);
+            });
+            if (!preGaps.empty()) {
+                const auto& preGap = preGaps.front();
+                auto frames = CD::getFrames(preGap.minutes, preGap.seconds, preGap.frames);
+                track.preGapOffset = CD::getBytesFromFrames(frames);
+            }
+
+            const CD::CueTrackIndex const* sound = nullptr;
+            if (preGaps.empty()) {
+                sound = &cueTrack.indices.front();
+            }
+            else if (cueTrack.indices.size() > 1) {
+                sound = &cueTrack.indices[1];
+            }
+            else {
+                continue;
+            }
+            assert(sound != nullptr);
+            auto frames = CD::getFrames(sound->minutes, sound->seconds, sound->frames);
+            track.soundOffset = CD::getBytesFromFrames(frames);
+
+            tracks.emplace_back(track);
+        }
 
         m_Reader.Seek(data.offset, Common::BinaryFileReader::SeekOrigin::Begin);
 

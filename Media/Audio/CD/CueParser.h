@@ -10,7 +10,7 @@
 #include <vector>
 #include "Cue.h"
 
-namespace RagiMagick2::Audio::Wav
+namespace RagiMagick2::Audio::CD
 {
     class CueParser final
     {

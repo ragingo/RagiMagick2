@@ -5,7 +5,7 @@
 #include <tuple>
 #include <vector>
 
-namespace RagiMagick2::Audio::Wav
+namespace RagiMagick2::Audio::CD
 {
     enum class CueCommand
     {
