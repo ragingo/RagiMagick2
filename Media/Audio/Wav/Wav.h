@@ -28,7 +28,7 @@ namespace RagiMagick2::Audio::Wav
         DATA = 0x61746164  // 'data' -> 'atad'
     };
 
-    enum class Channel: uint16_t
+    enum class Channel : uint16_t
     {
         MONO = 1,
         STEREO = 2
@@ -68,10 +68,15 @@ namespace RagiMagick2::Audio::Wav
         uint16_t bitsPerSample;
     };
 
-    struct DataChunk
+    struct DataChunkHeader
     {
         ChunkID chunkID = ChunkID::DATA;
         uint32_t length;
+    };
+
+    struct DataChunk
+    {
+        DataChunkHeader header;
         std::streamoff offset;
         std::byte pad;
     };

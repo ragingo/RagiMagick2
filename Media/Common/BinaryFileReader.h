@@ -4,7 +4,6 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
-#include <iosfwd>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -101,7 +100,7 @@ namespace RagiMagick2::Common
             }
         }
 
-        size_t GetSize() const noexcept
+        std::streamoff GetSize() const noexcept
         {
             return m_Size;
         }
@@ -140,7 +139,7 @@ namespace RagiMagick2::Common
     private:
         std::string m_Filename;
         std::ifstream m_Stream;
-        size_t m_Size = 0;
+        std::streamoff m_Size = 0;
         bool m_IsByteSwap;
     };
 } // namespace RagiMagick2::Common

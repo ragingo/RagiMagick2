@@ -23,13 +23,6 @@ namespace RagiMagick2::Audio::Wav
         void parseRiffChunk() noexcept;
         void parseFormatChunk() noexcept;
         void parseDataChunk() noexcept;
-        void writeWavFile(
-            const std::string& outputFileName,
-            const RiffChunk& riffChunk,
-            const FormatChunk& formatChunk,
-            const DataChunk& dataChunk,
-            const Track& track
-        ) noexcept;
 
         std::string m_WavFileName;
         std::string m_CueFileName;

@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -44,50 +43,50 @@ namespace RagiMagick2::Audio::CD
 
                 const auto& command = parseCommand(values[0]);
 
-               switch (command) {
-               case CueCommand::REM:
-                   if (isHeaderParsed) {
-                       assert(cue.tracks.size() > 0);
-                       auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
-                       lastTrack.remarks.emplace_back(parseRemark(values));
-                   }
-                   else {
-                       cue.remarks.emplace_back(parseRemark(values));
-                   }
-                   break;
-               case CueCommand::TITLE:
-                   if (isHeaderParsed) {
-                       auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
-                       lastTrack.title = values[1];
-                   }
-                   else {
-                       cue.title = values[1];
-                   }
-                   break;
-               case CueCommand::PERFORMER:
-                   if (isHeaderParsed) {
-                       auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
-                       lastTrack.performer = values[1];
-                   }
-                   else {
-                       cue.performer = values[1];
-                   }
-                   break;
-               case CueCommand::FILE:
-                   isHeaderParsed = true;
-                   cue.wavFileName = values[1];
-                   break;
-               case CueCommand::TRACK:
-                   cue.tracks.emplace_back(parseTrack(values));
-                   break;
-               case CueCommand::INDEX:
-                   {
-                       auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
-                       lastTrack.indices.emplace_back(parseTrackIndex(values));
-                   }
-                   break;
-               default:
-                   break;
+                switch (command) {
+                case CueCommand::REM:
+                    if (isHeaderParsed) {
+                        assert(cue.tracks.size() > 0);
+                        auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
+                        lastTrack.remarks.emplace_back(parseRemark(values));
+                    }
+                    else {
+                        cue.remarks.emplace_back(parseRemark(values));
+                    }
+                    break;
+                case CueCommand::TITLE:
+                    if (isHeaderParsed) {
+                        auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
+                        lastTrack.title = values[1];
+                    }
+                    else {
+                        cue.title = values[1];
+                    }
+                    break;
+                case CueCommand::PERFORMER:
+                    if (isHeaderParsed) {
+                        auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
+                        lastTrack.performer = values[1];
+                    }
+                    else {
+                        cue.performer = values[1];
+                    }
+                    break;
+                case CueCommand::FILE:
+                    isHeaderParsed = true;
+                    cue.wavFileName = values[1];
+                    break;
+                case CueCommand::TRACK:
+                    cue.tracks.emplace_back(parseTrack(values));
+                    break;
+                case CueCommand::INDEX:
+                {
+                    auto& lastTrack = cue.tracks[cue.tracks.size() - 1];
+                    lastTrack.indices.emplace_back(parseTrackIndex(values));
+                }
+                break;
+                default:
+                    break;
                 }
             }
 

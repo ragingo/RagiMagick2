@@ -184,6 +184,7 @@
     <ClInclude Include="Audio\CD\CueParser.h" />
     <ClInclude Include="Audio\Wav\Wav.h" />
     <ClInclude Include="Audio\Wav\WavParser.h" />
+    <ClInclude Include="Audio\Wav\WavWriter.h" />
     <ClInclude Include="Image\Filter\BinaryFilter.h" />
     <ClInclude Include="Common\BinaryFileReader.h" />
     <ClInclude Include="Common\CPU.h" />
@@ -207,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Audio\Wav\WavParser.cpp" />
+    <ClCompile Include="Audio\Wav\WavWriter.cpp" />
     <ClCompile Include="Image\Filter\BinaryFilter.cpp" />
     <ClCompile Include="Image\Filter\GaussianFilter.cpp" />
     <ClCompile Include="Image\Filter\GrayscaleFilter.cpp" />
