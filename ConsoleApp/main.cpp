@@ -6,18 +6,10 @@
 #include <nameof.hpp>
 #include "CommandLine/CommandLine.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 bool validateCPU();
 
 int main(int argc, char** argv)
 {
-#ifdef _WIN32
-    SetConsoleOutputCP(CP_UTF8);
-#endif
-
     std::vector<std::string_view> args(argv + 1, argv + argc);
 
     if (args.empty()) {
