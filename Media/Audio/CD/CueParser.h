@@ -236,7 +236,7 @@ namespace RagiMagick2::Audio::CD
         }
 
     private:
-        std::string_view m_FileName;
+        std::string m_FileName;
         std::ifstream m_Reader;
     };
 
