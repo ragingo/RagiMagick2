@@ -4,7 +4,6 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
-#include <iosfwd>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -22,9 +21,10 @@ namespace RagiMagick2::Common
         };
 
     public:
-        BinaryFileReader(std::string_view filename) noexcept
+        BinaryFileReader(std::string_view filename, bool isByteSwap = true) noexcept
         {
             m_Filename = filename;
+            m_IsByteSwap = isByteSwap;
         }
 
         ~BinaryFileReader()
@@ -49,9 +49,9 @@ namespace RagiMagick2::Common
         }
 
         template <typename T, size_t N>
-        void ReadBytes(std::array<T, N>& buffer) noexcept
+        void ReadBytes(std::array<T, N>& buffer, size_t count = sizeof(T) * N) noexcept
         {
-            m_Stream.read(reinterpret_cast<char*>(buffer.data()), sizeof(T) * N);
+            m_Stream.read(reinterpret_cast<char*>(buffer.data()), count);
         }
 
         template <std::ranges::random_access_range T>
@@ -75,11 +75,28 @@ namespace RagiMagick2::Common
         void ReadUInt16(T& buffer) noexcept
         {
             m_Stream.read(reinterpret_cast<char*>(&buffer), sizeof(T));
-            if constexpr (std::is_enum_v<T>) {
-                buffer = static_cast<T>(std::byteswap(static_cast<std::underlying_type_t<T>>(buffer)));
+            if (m_IsByteSwap) {
+                if constexpr (std::is_enum_v<T>) {
+                    buffer = static_cast<T>(std::byteswap(static_cast<std::underlying_type_t<T>>(buffer)));
+                }
+                else {
+                    buffer = std::byteswap(buffer);
+                }
             }
-            else {
-                buffer = std::byteswap(buffer);
+        }
+
+        template <typename T>
+            requires (std::is_same_v<T, uint32_t> || (std::is_enum_v<T> && std::is_same_v<std::underlying_type_t<T>, uint32_t>))
+        void ReadUInt32(T& buffer) noexcept
+        {
+            m_Stream.read(reinterpret_cast<char*>(&buffer), sizeof(T));
+            if (m_IsByteSwap) {
+                if constexpr (std::is_enum_v<T>) {
+                    buffer = static_cast<T>(std::byteswap(static_cast<std::underlying_type_t<T>>(buffer)));
+                }
+                else {
+                    buffer = std::byteswap(buffer);
+                }
             }
         }
 
@@ -109,9 +126,20 @@ namespace RagiMagick2::Common
             return m_Stream.tellg();
         }
 
+        bool isEOF()
+        {
+            return GetCurrentPosition() >= GetSize();
+        }
+
+        void clear() noexcept
+        {
+            m_Stream.clear();
+        }
+
     private:
         std::string m_Filename;
         std::ifstream m_Stream;
         size_t m_Size = 0;
+        bool m_IsByteSwap;
     };
 } // namespace RagiMagick2::Common
