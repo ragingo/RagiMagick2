@@ -78,7 +78,7 @@ namespace RagiMagick2::Audio::Wav
     {
         DataChunkHeader header;
         std::streamoff offset;
-        std::byte pad;
+        uint8_t pad;
     };
 
     struct Track
