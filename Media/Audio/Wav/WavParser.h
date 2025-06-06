@@ -20,7 +20,7 @@ namespace RagiMagick2::Audio::Wav
 
         bool hasCue() const noexcept { return m_Cue.has_value(); }
 
-        const std::string_view getWavFileName() const noexcept { return m_WavFileName; }
+        std::string_view getWavFileName() const noexcept { return m_WavFileName; }
         const std::string& getCueFileName() const noexcept { return m_CueFileName; }
         const std::optional<CD::Cue>& getCue() const noexcept { return m_Cue; }
         const std::vector<Track>& getTracks() const noexcept { return m_Tracks; }
