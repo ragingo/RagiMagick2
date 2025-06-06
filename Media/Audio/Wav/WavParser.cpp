@@ -1,5 +1,4 @@
 ﻿#include "WavParser.h"
-#include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <filesystem>
@@ -12,7 +11,6 @@
 #include "Audio/CD/Cue.h"
 #include "Audio/CD/CueParser.h"
 #include "Wav.h"
-#include "WavSplitter.h"
 
 namespace RagiMagick2::Audio::Wav
 {
@@ -22,7 +20,7 @@ namespace RagiMagick2::Audio::Wav
     {
     }
 
-    void WavParser::parse() noexcept
+    bool WavParser::parse() noexcept
     {
         // .cue 存在チェック
         auto wavFilePath = std::filesystem::path(m_WavFileName);
@@ -32,11 +30,13 @@ namespace RagiMagick2::Audio::Wav
         }
 
         if (!m_Reader.open()) {
-            return;
+            std::println(stderr, "{} のオープンに失敗した", m_WavFileName);
+            return false;
         }
 
         if (!parseRiffContainer()) {
-            return;
+            std::println(stderr, "RIFFコンテナのパースに失敗した");
+            return false;
         }
 
         if (!m_CueFileName.empty()) {
@@ -44,6 +44,8 @@ namespace RagiMagick2::Audio::Wav
             m_Cue = parser.parse();
             parseMultiTrackWav();
         }
+
+        return true;
     }
 
     bool WavParser::parseRiffContainer() noexcept
@@ -66,7 +68,7 @@ namespace RagiMagick2::Audio::Wav
         }
 
         if (!m_RiffChunk || !m_FormatChunk || !m_DataChunk) {
-            std::println(stderr, "必須チャンク RIFF, fmt, data のいずれかが存在しない");
+            std::println(stderr, "[RIFF Container] 必須チャンク RIFF, fmt, data のいずれかが存在しない");
             return false;
         }
 
@@ -76,26 +78,26 @@ namespace RagiMagick2::Audio::Wav
         const auto blockSize = (fmt.bitsPerSample / 8) * std::to_underlying(fmt.channels);
 
         if (!isWave) {
-            std::println("invalid FileID: 0x{0:X}", std::to_underlying(riff.fileID));
+            std::println("[RIFF Container] invalid FileID: 0x{0:X}", std::to_underlying(riff.fileID));
         }
 
         if (!(isWave && (fmt.bitsPerSample == 8 || fmt.bitsPerSample == 16))) {
-            std::println(stderr, "WAVE なのに 1 サンプルあたりのビット数が 8 または 16 ではない");
+            std::println(stderr, "[RIFF Container] WAVE なのに 1 サンプルあたりのビット数が 8 または 16 ではない");
             return false;
         }
 
         if (fmt.channels != Channel::MONO && fmt.channels != Channel::STEREO) {
-            std::println(stderr, "チャンネル数が 1 または 2 ではない");
+            std::println(stderr, "[RIFF Container] チャンネル数が 1 または 2 ではない");
             return false;
         }
 
         if (fmt.blockSize != blockSize) {
-            std::println(stderr, "ブロック(1サンプル)のサイズがおかしい");
+            std::println(stderr, "[RIFF Container] ブロック(1サンプル)のサイズがおかしい");
             return false;
         }
 
         if (fmt.bytesPerSec != fmt.samplingFreq * blockSize) {
-            std::println(stderr, "1秒あたりのサイズがおかしい");
+            std::println(stderr, "[RIFF Container] 1秒あたりのサイズがおかしい");
             return false;
         }
 
@@ -108,25 +110,24 @@ namespace RagiMagick2::Audio::Wav
         assert(m_DataChunk);
         const auto& cue = *m_Cue;
         const auto& fmt = *m_FormatChunk;
-        const auto& data = *m_DataChunk;
 
         if (fmt.bitsPerSample != CD::BITS_PER_SAMPLE) {
-            std::println(stderr, "ビット深度が 16 ではない");
+            std::println(stderr, "[fmt Chunk] ビット深度が 16 ではない");
             return;
         }
 
         if (std::to_underlying(fmt.channels) != CD::CHANNELS) {
-            std::println(stderr, "チャンネル数が 2 ではない");
+            std::println(stderr, "[fmt Chunk] チャンネル数が 2 ではない");
             return;
         }
 
         if (fmt.samplingFreq != CD::SAMPLING_RATE) {
-            std::println(stderr, "サンプリング周波数が 44,100 Hz ではない");
+            std::println(stderr, "[fmt Chunk] サンプリング周波数が 44,100 Hz ではない");
             return;
         }
 
         if (fmt.bytesPerSec != CD::BYTES_PER_SECOND) {
-            std::println(stderr, "1秒あたりのサイズが 176,400 ではない");
+            std::println(stderr, "[fmt Chunk] 1秒あたりのサイズが 176,400 ではない");
             return;
         }
 
@@ -135,7 +136,7 @@ namespace RagiMagick2::Audio::Wav
 
         for (const auto& cueTrack : cue.tracks) {
             if (cueTrack.indices.empty()) {
-                std::println(stderr, "トラック {} にインデックスが存在しない", cueTrack.id);
+                std::println(stderr, "[CUE] トラック {} にインデックスが存在しない", cueTrack.id);
                 continue;
             }
 
@@ -181,13 +182,7 @@ namespace RagiMagick2::Audio::Wav
             }
         }
 
-        m_Reader.clear();
-        m_Reader.Seek(data.offset, Common::BinaryFileReader::SeekOrigin::Begin);
-
-        auto wavFilePath = std::filesystem::path(m_WavFileName);
-        auto dir = wavFilePath.parent_path().string();
-
-        WavSplitter().run(dir, tracks, m_Reader, *m_FormatChunk, *m_DataChunk);
+        tracks.swap(m_Tracks);
     }
 
     void WavParser::parseRiffChunk() noexcept
