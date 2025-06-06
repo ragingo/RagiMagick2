@@ -40,7 +40,6 @@ public:
 
         if (parser.hasCue()) {
             const auto& cue = *parser.getCue();
-            const auto& metadata = parser.getCue();
             const auto& tracks = parser.getTracks();
             std::println("===== Cue Sheet =====");
             for (const auto& track : cue.tracks) {
