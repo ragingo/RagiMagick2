@@ -22,7 +22,7 @@ namespace RagiMagick2::Audio::Wav
     {
     }
 
-    void WavParser::parse() noexcept
+    bool WavParser::parse() noexcept
     {
         // .cue 存在チェック
         auto wavFilePath = std::filesystem::path(m_WavFileName);
@@ -32,11 +32,11 @@ namespace RagiMagick2::Audio::Wav
         }
 
         if (!m_Reader.open()) {
-            return;
+            return false;
         }
 
         if (!parseRiffContainer()) {
-            return;
+            return false;
         }
 
         if (!m_CueFileName.empty()) {
@@ -44,6 +44,8 @@ namespace RagiMagick2::Audio::Wav
             m_Cue = parser.parse();
             parseMultiTrackWav();
         }
+
+        return true;
     }
 
     bool WavParser::parseRiffContainer() noexcept
@@ -181,13 +183,7 @@ namespace RagiMagick2::Audio::Wav
             }
         }
 
-        m_Reader.clear();
-        m_Reader.Seek(data.offset, Common::BinaryFileReader::SeekOrigin::Begin);
-
-        auto wavFilePath = std::filesystem::path(m_WavFileName);
-        auto dir = wavFilePath.parent_path().string();
-
-        WavSplitter().run(dir, tracks, m_Reader, *m_FormatChunk, *m_DataChunk);
+        tracks.swap(m_Tracks);
     }
 
     void WavParser::parseRiffChunk() noexcept
