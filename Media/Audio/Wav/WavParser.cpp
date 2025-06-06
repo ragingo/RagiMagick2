@@ -110,7 +110,6 @@ namespace RagiMagick2::Audio::Wav
         assert(m_DataChunk);
         const auto& cue = *m_Cue;
         const auto& fmt = *m_FormatChunk;
-        const auto& data = *m_DataChunk;
 
         if (fmt.bitsPerSample != CD::BITS_PER_SAMPLE) {
             std::println(stderr, "ビット深度が 16 ではない");
