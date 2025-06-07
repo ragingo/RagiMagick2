@@ -179,6 +179,7 @@
     <ClInclude Include="CommandLine\CommandLine.h" />
     <ClInclude Include="CommandLine\ConvertCommand.h" />
     <ClInclude Include="CommandLine\ShowCommand.h" />
+    <ClInclude Include="Convert\AudioConverter.h" />
     <ClInclude Include="Convert\ImageConverter.h" />
     <ClInclude Include="Dump\AudioDumper.h" />
   </ItemGroup>

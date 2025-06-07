@@ -4,6 +4,7 @@
 #include <string_view>
 #include <vector>
 #include "Convert/ImageConverter.h"
+#include "Convert/AudioConverter.h"
 
 class ConvertCommand final
 {
@@ -34,6 +35,14 @@ public:
             }
             return converter.execute();
         }
+        case SubCommand::Audio:
+        {
+            auto converter = AudioConverter(m_Options);
+            if (!converter.parse()) {
+                return false;
+            }
+            return converter.execute();
+        }
         case SubCommand::Help:
             return true;
         default:
@@ -45,6 +54,7 @@ private:
     enum class SubCommand
     {
         Image,
+        Audio,
         Help,
         Unknown
     };
@@ -53,6 +63,9 @@ private:
     {
         if (subCommand == "image") {
             return SubCommand::Image;
+        }
+        if (subCommand == "audio") {
+            return SubCommand::Audio;
         }
         if (subCommand == "help") {
             return SubCommand::Help;
