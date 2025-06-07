@@ -16,7 +16,6 @@ namespace RagiMagick2::Audio::Wav
 {
     WavParser::WavParser(std::string_view wavFileName) noexcept
         : m_WavFileName(std::string(wavFileName))
-        , m_Reader(Common::BinaryFileReader(m_WavFileName, false))
     {
     }
 
@@ -29,13 +28,17 @@ namespace RagiMagick2::Audio::Wav
             m_CueFileName = cueFilePath.string();
         }
 
-        if (!m_Reader.open()) {
-            std::println(stderr, "{} のオープンに失敗した", m_WavFileName);
-            return false;
+        if (!m_Reader.has_value()) {
+            m_Reader.emplace(Common::BinaryFileReader(m_WavFileName, false));
+            if (!m_Reader.value().open()) {
+                std::println(stderr, "{} のオープンに失敗した", m_WavFileName);
+                return false;
+            }
         }
 
         if (!parseRiffContainer()) {
             std::println(stderr, "RIFFコンテナのパースに失敗した");
+            m_Reader.reset();
             return false;
         }
 
@@ -45,14 +48,17 @@ namespace RagiMagick2::Audio::Wav
             parseMultiTrackWav();
         }
 
+        m_Reader.reset();
         return true;
     }
 
     bool WavParser::parseRiffContainer() noexcept
     {
-        while (!m_Reader.isEOF()) {
+        assert(m_Reader);
+        auto& reader = *m_Reader;
+        while (!reader.isEOF()) {
             ChunkID chunkID;
-            m_Reader.ReadUInt32(chunkID);
+            reader.ReadUInt32(chunkID);
 
             switch (chunkID) {
             case ChunkID::RIFF:
@@ -187,32 +193,38 @@ namespace RagiMagick2::Audio::Wav
 
     void WavParser::parseRiffChunk() noexcept
     {
+        assert(m_Reader);
+        auto& reader = *m_Reader;
         RiffChunk riff{};
-        m_Reader.ReadUInt32(riff.length);
-        m_Reader.ReadUInt32(riff.fileID);
+        reader.ReadUInt32(riff.length);
+        reader.ReadUInt32(riff.fileID);
         m_RiffChunk.emplace(riff);
     }
 
     void WavParser::parseFormatChunk() noexcept
     {
+        assert(m_Reader);
+        auto& reader = *m_Reader;
         FormatChunk fmt{};
-        m_Reader.ReadUInt32(fmt.length);
-        m_Reader.ReadUInt16(fmt.format);
-        m_Reader.ReadUInt16(fmt.channels);
-        m_Reader.ReadUInt32(fmt.samplingFreq);
-        m_Reader.ReadUInt32(fmt.bytesPerSec);
-        m_Reader.ReadUInt16(fmt.blockSize);
-        m_Reader.ReadUInt16(fmt.bitsPerSample);
+        reader.ReadUInt32(fmt.length);
+        reader.ReadUInt16(fmt.format);
+        reader.ReadUInt16(fmt.channels);
+        reader.ReadUInt32(fmt.samplingFreq);
+        reader.ReadUInt32(fmt.bytesPerSec);
+        reader.ReadUInt16(fmt.blockSize);
+        reader.ReadUInt16(fmt.bitsPerSample);
         m_FormatChunk.emplace(fmt);
     }
 
     void WavParser::parseDataChunk() noexcept
     {
+        assert(m_Reader);
+        auto& reader = *m_Reader;
         DataChunk data{};
-        m_Reader.ReadUInt32(data.header.length);
-        data.offset = m_Reader.GetCurrentPosition();
-        m_Reader.Seek(data.header.length, Common::BinaryFileReader::SeekOrigin::Current);
-        m_Reader.ReadUInt8(data.pad);
+        reader.ReadUInt32(data.header.length);
+        data.offset = reader.GetCurrentPosition();
+        reader.Seek(data.header.length, Common::BinaryFileReader::SeekOrigin::Current);
+        reader.ReadUInt8(data.pad);
         m_DataChunk.emplace(data);
     }
 }

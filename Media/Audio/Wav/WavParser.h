@@ -24,6 +24,8 @@ namespace RagiMagick2::Audio::Wav
         const std::string& getCueFileName() const noexcept { return m_CueFileName; }
         const std::optional<CD::Cue>& getCue() const noexcept { return m_Cue; }
         const std::vector<Track>& getTracks() const noexcept { return m_Tracks; }
+        const std::optional<FormatChunk>& getFormatChunk() const noexcept { return m_FormatChunk; }
+        const std::optional<DataChunk>& getDataChunk() const noexcept { return m_DataChunk; }
 
     private:
         bool parseRiffContainer() noexcept;
@@ -38,7 +40,7 @@ namespace RagiMagick2::Audio::Wav
         std::optional<RiffChunk> m_RiffChunk;
         std::optional<FormatChunk> m_FormatChunk;
         std::optional<DataChunk> m_DataChunk;
-        Common::BinaryFileReader m_Reader;
+        std::optional<Common::BinaryFileReader> m_Reader;
         std::vector<Track> m_Tracks{};
     };
 

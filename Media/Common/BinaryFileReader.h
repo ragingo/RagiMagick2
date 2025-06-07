@@ -32,6 +32,9 @@ namespace RagiMagick2::Common
             m_Stream.close();
         }
 
+        BinaryFileReader(BinaryFileReader&&) noexcept = default;
+        BinaryFileReader& operator=(BinaryFileReader&&) noexcept = default;
+
         bool open() noexcept
         {
             if (!std::filesystem::exists(m_Filename)) {
