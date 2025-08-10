@@ -58,12 +58,13 @@ namespace RagiMagick2::Common
         }
 
         template <std::ranges::random_access_range T>
-        void ReadBytes(T& buffer) noexcept
+        std::size_t ReadBytes(T& buffer) noexcept
         {
             m_Stream.read(
                 reinterpret_cast<char*>(std::data(buffer)),
                 std::size(buffer) * sizeof(std::ranges::range_value_t<T>)
             );
+            return m_Stream.gcount();
         }
 
         template <typename T>
