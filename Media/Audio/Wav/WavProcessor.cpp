@@ -16,8 +16,6 @@ namespace RagiMagick2::Audio::Wav
     WavProcessor::WavProcessor(std::string_view inputFile, std::string_view outputFile) noexcept
         : m_InputFile(inputFile)
         , m_OutputFile(outputFile)
-        , m_Speed(1.0)
-        , m_Channels(std::nullopt)
     {
     }
 
@@ -82,7 +80,7 @@ namespace RagiMagick2::Audio::Wav
                 return false;
             }
 
-            const uint8_t* pcmData = inBuf.data();
+            uint8_t* pcmData = inBuf.data();
             uint32_t pcmDataSize = readBytes;
 
             // チャンネル変換
@@ -106,7 +104,7 @@ namespace RagiMagick2::Audio::Wav
                 pcmDataSize = targetSampleCount * outputBlockSize;
             }
 
-            writer.writePCM(const_cast<uint8_t*>(pcmData), pcmDataSize);
+            writer.writePCM(pcmData, pcmDataSize);
             processedSamples += targetSampleCount;
         }
 

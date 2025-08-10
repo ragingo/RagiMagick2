@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <string>
 #include <string_view>
 #include <optional>
 #include <vector>
@@ -20,10 +21,10 @@ namespace RagiMagick2::Audio::Wav
         bool execute() noexcept;
 
     private:
-        std::string_view m_InputFile;
-        std::string_view m_OutputFile;
-        double m_Speed;
-        std::optional<Channel> m_Channels;
+        std::string m_InputFile;
+        std::string m_OutputFile;
+        double m_Speed = 1.0;
+        std::optional<Channel> m_Channels = std::nullopt;
 
         void updateChannels(const FormatChunk& inputFormatChunk, FormatChunk& outputFormatChunk) noexcept;
         void updateSpeed(const FormatChunk& inputFormatChunk, FormatChunk& outputFormatChunk) noexcept;
